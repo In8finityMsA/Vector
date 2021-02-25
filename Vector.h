@@ -184,7 +184,34 @@ public:
         }
         else throw std::runtime_error("Out of bounds exception!");
     }
-    void insert(size_t index, std::initializer_list<ContainerType> il);
+    void insert(size_t index, std::initializer_list<ContainerType> il) {
+        std::cout << "Insert init list" << std::endl;
+        if (index == size_) {
+            for (auto iter = il.begin(); iter != il.end(); iter++) {
+                push_back(*iter);
+            }
+        }
+        else if (index < size_) {
+            if (size_ + il.size() > capacity_) {
+                std::cout << "Realloc" << std::endl;
+                capacity_ += capacity_ > il.size() ? capacity_ : il.size(); //Multiply capacity_ by 2 or add il.size for storing new elements
+                PointerType oldMemory = reallocate(capacity_);
+                elementsMove(oldMemory, data_, /*count:*/ index);
+                elementsMove(oldMemory + index, data_ + index + il.size(), size_ - index);
+                delete[] oldMemory;
+            }
+            else {
+                elementsShift(data_ + index, size_ - index, /*shift:*/ il.size());
+            }
+
+            auto iter = il.begin();
+            for (int i = index; i < index + il.size(); i++) {
+                data_[i] = *(iter++);
+            }
+            size_ += il.size();
+        }
+        else throw std::runtime_error("Out of bounds exception!");
+    }
 
     void erase(size_t index);
     void erase(size_t first, size_t last);
@@ -250,19 +277,6 @@ private:
 
         return tempPtr;
     }
-    ///[start, finish = start + count)
-    /*void reallocate(size_t start, size_t finish) {
-        auto tempPtr = data_;
-        capacity_ += capacity_ > finish - start ? capacity_ : finish - start; //Multiply by 2 or add count of new elements
-        data_ = new ContainerType[capacity_];
-        for (int i = 0; i < start; i++) {
-            data_[i] = std::move(tempPtr[i]);
-        }
-        for (int i = finish; i < size_; i++) {
-            data_[i] = std::move(tempPtr[start++]);
-        }
-        delete[] tempPtr;
-    }*/
 
     void elementsMove(PointerType src, PointerType dst, size_t count) {
         for (PointerType ptr = dst; ptr < dst + count; ptr++) {
