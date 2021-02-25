@@ -15,15 +15,17 @@ class Vector {
 
 public:
 
-    Vector() : size_(0), capacity_(1) {
+    using PointerType = ContainerType*;
+
+    Vector() : size_(0), capacity_(2) {
         data_ = new ContainerType[capacity_];
         std::cout << "Constructor: empty" << std::endl;
     }
-    explicit Vector(std::size_t size) : size_(size), capacity_(size) {
+    explicit Vector(size_t size) : size_(size), capacity_(size) {
         data_ = new ContainerType[capacity_]();
         std::cout << "Constructor: n" << std::endl;
     }
-    Vector(std::size_t size, const ContainerType& elem) : size_(size), capacity_(size) {
+    Vector(size_t size, const ContainerType& elem) : size_(size), capacity_(size) {
         data_ = new ContainerType[capacity_];
         for (int i = 0; i < size_; i++) {
             data_[i] = elem;
@@ -80,11 +82,9 @@ public:
                 memcpy(data_, vector.data_, size_ * sizeof(ContainerType));
                 std::cout << "Assign: = copy integral" << std::endl;
             } else {
-                auto start = std::chrono::steady_clock::now();
                 for (int i = 0; i < vector.size(); i++) {
                     data_[i] = vector[i];
                 }
-                std::cout << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count() << std::endl;
                 std::cout << "Assign: = copy not integral" << std::endl;
             }
         }
@@ -115,63 +115,113 @@ public:
         return *this;
     }
 
-    void reallocate() {
-        auto tempPtr = data_;
-        data_ = new ContainerType[capacity_ *= 2];
-        for (int i = 0; i < size_; i++) {
-            data_[i] = tempPtr[i];
-        }
-        delete[] tempPtr;
-    }
     void push_back(const ContainerType& elem) {
-        if (size_ >= capacity_) {
-            reallocate();
-            std::cout << "Realloc finished" << std::endl;
+        std::cout << "Pushback copy" << std::endl;
+        if (size_ == capacity_) {
+            reserve(capacity_ * 2);
         }
-        if (data_ != nullptr)
-            data_[size_++] = elem;
-        else throw std::runtime_error("Null pointer exception!");
+        data_[size_++] = elem;
     }
     void push_back(ContainerType&& elem) {
-        if (size_ >= capacity_) {
-            reallocate();
+        std::cout << "Pushback move" << std::endl;
+        if (size_ == capacity_) {
+            reserve(capacity_ * 2);
         }
-        if (data_ != nullptr) {
-            data_[size_++] = std::move(elem);
-        }
-        else throw std::runtime_error("Null pointer exception!");
+        data_[size_++] = std::move(elem);
     };
     void pop_back() {
         size_--;
     };
-    void insert(std::size_t index, const ContainerType& elem);
 
-    void erase(std::size_t index);
-    void erase(std::size_t first, std::size_t last);
+    void insert(size_t index, const ContainerType& elem) {
+        insert(index, 1, elem);
+    };
+    void insert(size_t index, size_t count, const ContainerType& elem) {
+        std::cout << "Insert copy" << std::endl;
+        if (index == size_) {
+            for (int i = 0; i < count; i++)
+                push_back(elem);
+        }
+        else if (index < size_) {
+            if (size_ + count > capacity_) {
+                std::cout << "Realloc" << std::endl;
+                capacity_ += capacity_ > count ? capacity_ : count; //Multiply capacity_ by 2 or add count for storing new elements
+                PointerType oldMemory = reallocate(capacity_);
+                elementsMove(oldMemory, data_, /*count:*/ index);
+                elementsMove(oldMemory + index, data_ + index + count, size_ - index);
+                delete[] oldMemory;
+            }
+            else {
+                elementsShift(data_ + index, size_ - index, /*shift:*/ count);
+            }
+
+            for (int i = index; i < index + count; i++) {
+                data_[i] = elem;
+            }
+            size_ += count;
+        }
+        else throw std::runtime_error("Out of bounds exception!");
+    }
+    void insert(size_t index, ContainerType&& elem) {
+        std::cout << "Insert move" << std::endl;
+        if (index == size_) {
+            push_back(std::move(elem));
+        }
+        else if (index < size_) {
+            if (size_ + 1 > capacity_) {
+                std::cout << "Realloc move" << std::endl;
+                PointerType oldMemory = reallocate();
+                elementsMove(oldMemory, data_, /*count:*/ index);
+                elementsMove(oldMemory + index, data_ + index + 1, size_ - index);
+                delete[] oldMemory;
+            }
+            else {
+                elementsShift(data_ + index, size_ - index, /*shift:*/ 1);
+            }
+
+            data_[index] = std::move(elem);
+            size_++;
+        }
+        else throw std::runtime_error("Out of bounds exception!");
+    }
+    void insert(size_t index, std::initializer_list<ContainerType> il);
+
+    void erase(size_t index);
+    void erase(size_t first, size_t last);
     void clear();
 
     ContainerType& front() const;
     ContainerType& back() const;
     ContainerType* begin() const;
     ContainerType* end() const;
-    std::size_t size() const noexcept {
+
+    size_t capacity() const noexcept {
+        return capacity_;
+    };
+    size_t size() const noexcept {
         return size_;
     };
     bool empty() const noexcept {
         return size_ == 0;
     };
 
-    void reserve(std::size_t capacity);
-    void resize(std::size_t size, const ContainerType& elem = ContainerType() );
+    void reserve(size_t capacity) {
+        if (capacity > capacity_) {
+            auto oldMemory = reallocate(capacity); //capacity_ member variable is renewed in reallocate
+            elementsMove(oldMemory, data_, size_);
+            delete[] oldMemory;
+        }
+    };
+    void resize(size_t size, const ContainerType& elem = ContainerType() );
     void shrink_to_fit();
 
-    ContainerType& operator[] (std::size_t index) {
+    ContainerType& operator[] (size_t index) {
         return data_[index];
     }
-    const ContainerType& operator[] (std::size_t index) const {
+    const ContainerType& operator[] (size_t index) const {
         return data_[index];
     }
-    ContainerType& at(std::size_t index) const {
+    ContainerType& at(size_t index) const {
         if (index < size_) {
             return data_[index];
         }
@@ -184,8 +234,55 @@ public:
 
 private:
     ContainerType* data_;
-    std::size_t size_;
-    std::size_t capacity_;
+    size_t size_;
+    size_t capacity_;
+
+    [[nodiscard]] PointerType reallocate() {
+        auto tempPtr = data_;
+        data_ = new ContainerType[capacity_ *= 2];
+
+        return tempPtr;
+    }
+    [[nodiscard]] PointerType reallocate(size_t amount) {
+        capacity_ = amount;
+        auto tempPtr = data_;
+        data_ = new ContainerType[amount];
+
+        return tempPtr;
+    }
+    ///[start, finish = start + count)
+    /*void reallocate(size_t start, size_t finish) {
+        auto tempPtr = data_;
+        capacity_ += capacity_ > finish - start ? capacity_ : finish - start; //Multiply by 2 or add count of new elements
+        data_ = new ContainerType[capacity_];
+        for (int i = 0; i < start; i++) {
+            data_[i] = std::move(tempPtr[i]);
+        }
+        for (int i = finish; i < size_; i++) {
+            data_[i] = std::move(tempPtr[start++]);
+        }
+        delete[] tempPtr;
+    }*/
+
+    void elementsMove(PointerType src, PointerType dst, size_t count) {
+        for (PointerType ptr = dst; ptr < dst + count; ptr++) {
+            *ptr = std::move( *(src++) );
+        }
+    }
+
+    void elementsCopy(PointerType src, PointerType dst, size_t count) {
+        for (PointerType ptr = dst; ptr < dst + count; ptr++) {
+            *ptr = *(src++);
+        }
+    }
+
+    //make it more readable
+    void elementsShift(PointerType begin, size_t count, size_t shift) {
+        PointerType dst = begin + count + shift - 1;
+        for (PointerType src = begin + count - 1; src >= begin; src--) {
+            *(dst--) = std::move( *src );
+        }
+    }
 
 };
 

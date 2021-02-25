@@ -7,7 +7,7 @@ using namespace std;
 
 int main() {
 
-    const int n = 100000;
+    const int n = 10000;
     try {
         Vector<int> intv0{1,3,5,6,2}; //Constr init list
 
@@ -16,9 +16,30 @@ int main() {
         for (int i = 0; i < n; i++) {
             intv1.push_back(i); //Copy pushback
         }
-        ///Massive copy
+
+        cout << intv1.size() << endl;
+        cout << intv1.capacity() << endl;
+        intv1.insert(n,-1);
+        intv1.insert(2, 6384,-100);
+        cout << intv1.capacity() << endl;
+        cout << intv1[1] << endl;
+        cout << intv1[2] << endl;
+        cout << intv1[1337] << endl;
+        cout << intv1[2 + 6384 - 1] << endl;
+        cout << intv1[2 + 6384] << endl;
+        cout << intv1[2 + 6384 + 100] << endl;
+        cout << intv1[10000] << endl;
+        cout << intv1[10000 - 1] << endl;
+        cout << intv1[intv1.size() - 2] << endl;
+        cout << intv1[intv1.size() - 1] << endl;
+        /*for (int i = 0; i < intv1.size(); ++i) {
+            cout << intv1[i] << endl;
+        }*/
+       /* ///Massive copy
         Vector<int> intv2(intv1); //Constr copy
-        cout << intv2[0] << endl;
+        *//*for (int i = 0; i < intv2.size(); ++i) {
+            cout << intv2[i] << endl;
+        }*//*
 
         ///Pushback check nonIntegral
         Vector<string> st1; //Constr empty
@@ -28,9 +49,6 @@ int main() {
         ///Massive copy nonIntegral
         Vector<string> st2(st1); //Constr copy
         cout << st2[289] << endl;
-        /*for (int i = 0; i < intv2.size(); i++) {
-            std::cout << intv2[i] << endl;
-        }*/
 
         ///Move check
         Vector<int> intv3 = {1,3,4}; //Constr init list
@@ -50,7 +68,7 @@ int main() {
         for (int i = 0; i < intv3.size(); i++) {
             cout << "Size intv3: " << intv3.size() << endl;
             std::cout << intv3[i] << endl;
-        }
+        }*/
 
         ///Check of not integral types
         /*vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
