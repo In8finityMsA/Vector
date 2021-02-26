@@ -45,6 +45,17 @@ int main() {
         cout << intv1[intv1.size() - 1] << endl;
         cout << intv1[intv1.size()] << endl;
         //intv1.erase(0, intv1.size());
+        cout << "Resize" << endl;
+        intv1.resize(intv1.size() + 10);
+        cout << intv1[intv1.size() - 11] << endl;
+        cout << intv1[intv1.size() - 10] << endl;
+        cout << intv1[intv1.size() - 4] << endl;
+        cout << intv1[intv1.size() - 3] << endl;
+        cout << intv1[intv1.size() - 2] << endl;
+        cout << intv1[intv1.size() - 1] << endl;
+        cout << intv1.capacity() << endl;
+        intv1.shrink_to_fit();
+        cout << intv1.capacity() << endl;
         intv1.clear();
         cout << intv1.size() << endl;
         cout << intv1[16384 - 5] << endl;

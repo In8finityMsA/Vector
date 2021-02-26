@@ -270,8 +270,23 @@ public:
             delete[] oldMemory;
         }
     };
-    void resize(size_t size, const ContainerType& elem = ContainerType() );
-    void shrink_to_fit();
+    void resize(size_t size, const ContainerType& elem = ContainerType() ) {
+        while (size < size_) {
+            pop_back();
+        }
+       if (size > size_) {
+            if (size > capacity_) {
+                reserve(size);
+            }
+            while (size > size_) {
+                push_back(elem);
+            }
+        }
+    }
+    void shrink_to_fit() {
+        capacity_ = 0; //to trick reserve function
+        reserve(size_);
+    }
 
     ContainerType& operator[] (size_t index) {
         return data_[index];
