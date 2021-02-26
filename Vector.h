@@ -156,7 +156,7 @@ public:
                 delete[] oldMemory;
             }
             else {
-                elementsShift(data_ + index, size_ - index, /*shift:*/ count);
+                elementsShiftRight(data_ + index, size_ - index, /*shift:*/ count);
             }
 
             for (int i = index; i < index + count; i++) {
@@ -180,7 +180,7 @@ public:
                 delete[] oldMemory;
             }
             else {
-                elementsShift(data_ + index, size_ - index, /*shift:*/ 1);
+                elementsShiftRight(data_ + index, size_ - index, /*shift:*/ 1);
             }
 
             data_[index] = std::move(elem);
@@ -205,7 +205,7 @@ public:
                 delete[] oldMemory;
             }
             else {
-                elementsShift(data_ + index, size_ - index, /*shift:*/ il.size());
+                elementsShiftRight(data_ + index, size_ - index, /*shift:*/ il.size());
             }
 
             auto iter = il.begin();
@@ -217,9 +217,26 @@ public:
         else throw std::runtime_error("Out of bounds exception!");
     }
 
-    void erase(size_t index);
-    void erase(size_t first, size_t last);
-    void clear();
+    void erase(size_t index) {
+        erase(index, 1);
+    }
+    void erase(size_t index, size_t count) {
+        if (index == size_ - count) {
+            for (int i = 0; i < count; i++) {
+                pop_back();
+            }
+        }
+        else if (index < size_ - count) {
+            elementsShiftLeft(data_ + index + count, size_ - index - count, /*shift:*/ count);
+            size_ -= count;
+        }
+        else throw std::runtime_error("Out of bounds exception!");
+    }
+    void clear() {
+        while (size_) {
+            pop_back();
+        }
+    };
 
     ContainerType& front() {
         return operator[](0);
@@ -310,11 +327,27 @@ private:
         }
     }
 
+    void elementsShift(PointerType begin, size_t chunkSize, long long shift) {
+        if (shift > 0) {
+            elementsShiftRight(begin, chunkSize, shift);
+        }
+        else if (shift < 0) {
+            elementsShiftLeft(begin, chunkSize, std::abs(shift));
+        }
+    }
+
     //make it more readable
-    void elementsShift(PointerType begin, size_t count, size_t shift) {
-        PointerType dst = begin + count + shift - 1;
-        for (PointerType src = begin + count - 1; src >= begin; src--) {
+    void elementsShiftRight(PointerType begin, size_t chunkSize, size_t shift) {
+        PointerType dst = begin + chunkSize + shift - 1;
+        for (PointerType src = begin + chunkSize - 1; src >= begin; src--) {
             *(dst--) = std::move( *src );
+        }
+    }
+
+    void elementsShiftLeft(PointerType begin, size_t chunkSize, size_t shift) {
+        PointerType dst = begin - shift;
+        for (PointerType src = begin; src < begin + chunkSize; src++) {
+            *(dst++) = std::move( *src );
         }
     }
 

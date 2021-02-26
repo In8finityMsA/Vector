@@ -38,6 +38,16 @@ int main() {
         cout << intv1[intv1.size() - 2] << endl;
         cout << intv1[intv1.size() - 1] << endl;
         cout << intv1[intv1.size()] << endl;
+        intv1.erase(intv1.size() - 4, 2);
+        cout << intv1[intv1.size() - 4] << endl;
+        cout << intv1[intv1.size() - 3] << endl;
+        cout << intv1[intv1.size() - 2] << endl;
+        cout << intv1[intv1.size() - 1] << endl;
+        cout << intv1[intv1.size()] << endl;
+        //intv1.erase(0, intv1.size());
+        intv1.clear();
+        cout << intv1.size() << endl;
+        cout << intv1[16384 - 5] << endl;
         /*for (int i = 0; i < intv1.size(); ++i) {
             cout << intv1[i] << endl;
         }*/
