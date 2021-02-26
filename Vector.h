@@ -217,8 +217,18 @@ public:
     void erase(size_t first, size_t last);
     void clear();
 
-    ContainerType& front() const;
-    ContainerType& back() const;
+    ContainerType& front() {
+        return operator[](0);
+    };
+    const ContainerType& front() const {
+        return operator[](0);
+    };
+    ContainerType& back() {
+        return operator[](size_ - 1);
+    };
+    const ContainerType& back() const {
+        return operator[](size_ - 1);
+    };
     ContainerType* begin() const;
     ContainerType* end() const;
 
@@ -248,7 +258,13 @@ public:
     const ContainerType& operator[] (size_t index) const {
         return data_[index];
     }
-    ContainerType& at(size_t index) const {
+    ContainerType& at(size_t index) {
+        if (index < size_) {
+            return data_[index];
+        }
+        else throw std::runtime_error("Out of bounds exception!");
+    };
+    const ContainerType& at(size_t index) const {
         if (index < size_) {
             return data_[index];
         }
