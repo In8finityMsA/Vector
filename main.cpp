@@ -32,6 +32,12 @@ int main() {
         cout << intv1[10000 - 1] << endl;
         cout << intv1[intv1.size() - 2] << endl;
         cout << intv1[intv1.size() - 1] << endl;
+        cout << intv1.size() << endl;
+        intv1.pop_back();
+        cout << intv1.size() << endl;
+        cout << intv1[intv1.size() - 2] << endl;
+        cout << intv1[intv1.size() - 1] << endl;
+        cout << intv1[intv1.size()] << endl;
         /*for (int i = 0; i < intv1.size(); ++i) {
             cout << intv1[i] << endl;
         }*/

@@ -129,8 +129,12 @@ public:
         }
         data_[size_++] = std::move(elem);
     };
-    void pop_back() {
-        size_--;
+    void pop_back() noexcept {
+        if (!empty()) {
+            if (std::has_trivial_default_constructor<ContainerType>::value)
+                data_[size_ - 1] = ContainerType();
+            size_--;
+        }
     };
 
     void insert(size_t index, const ContainerType& elem) {
