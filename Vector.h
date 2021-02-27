@@ -2,9 +2,9 @@
 // Created by Admin on 22.02.2021.
 //
 #include <iostream>
-#include <chrono>
 #include <stdexcept>
 #include <type_traits>
+#include <iterator>
 
 #ifndef TEMPLATE_VECTOR_H
 #define TEMPLATE_VECTOR_H
@@ -15,7 +15,9 @@ class Vector {
 
 public:
 
+    using ValueType = ContainerType;
     using PointerType = ContainerType*;
+    using ReferenceType = ContainerType&;
 
     Vector() : size_(0), capacity_(2) {
         data_ = new ContainerType[capacity_];
@@ -64,9 +66,7 @@ public:
             std::cout << "Constructor: = copy integral" << std::endl;
         }
         else {
-            for (int i = 0; i < vector.size(); i++) {
-                data_[i] = vector[i];
-            }
+            elementsCopy(vector.data_, data_, vector.size());
             std::cout << "Constructor: = copy not integral" << std::endl;
         }
     }
@@ -82,9 +82,7 @@ public:
                 memcpy(data_, vector.data_, size_ * sizeof(ContainerType));
                 std::cout << "Assign: = copy integral" << std::endl;
             } else {
-                for (int i = 0; i < vector.size(); i++) {
-                    data_[i] = vector[i];
-                }
+                elementsCopy(vector.data_, data_, vector.size());
                 std::cout << "Assign: = copy not integral" << std::endl;
             }
         }
@@ -116,7 +114,7 @@ public:
     }
 
     void push_back(const ContainerType& elem) {
-        std::cout << "Pushback copy" << std::endl;
+        //std::cout << "Pushback copy" << std::endl;
         if (size_ == capacity_) {
             reserve(capacity_ * 2);
         }
@@ -131,7 +129,7 @@ public:
     };
     void pop_back() noexcept {
         if (!empty()) {
-            if (std::has_trivial_default_constructor<ContainerType>::value)
+            if (std::is_default_constructible<ContainerType>::value)
                 data_[size_ - 1] = ContainerType();
             size_--;
         }
@@ -149,6 +147,7 @@ public:
         else if (index < size_) {
             if (size_ + count > capacity_) {
                 std::cout << "Realloc" << std::endl;
+                ///Maybe make this allocate more than count if it's greater than doubled capacity?
                 capacity_ += capacity_ > count ? capacity_ : count; //Multiply capacity_ by 2 or add count for storing new elements
                 PointerType oldMemory = reallocate(capacity_);
                 elementsMove(oldMemory, data_, /*count:*/ index);
@@ -250,8 +249,9 @@ public:
     const ContainerType& back() const {
         return operator[](size_ - 1);
     };
-    ContainerType* begin() const;
-    ContainerType* end() const;
+
+    PointerType begin();
+    PointerType end();
 
     size_t capacity() const noexcept {
         return capacity_;
@@ -272,14 +272,14 @@ public:
     };
     void resize(size_t size, const ContainerType& elem = ContainerType() ) {
         while (size < size_) {
-            pop_back();
+            pop_back(); //decrements size_
         }
        if (size > size_) {
             if (size > capacity_) {
                 reserve(size);
             }
             while (size > size_) {
-                push_back(elem);
+                push_back(elem); //increments size_
             }
         }
     }

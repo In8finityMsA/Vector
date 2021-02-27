@@ -17,57 +17,60 @@ int main() {
             intv1.push_back(i); //Copy pushback
         }
 
-        cout << intv1.size() << endl;
-        cout << intv1.capacity() << endl;
+        cout << "Size: " << intv1.size() << endl;
+        cout << "Capacity: " << intv1.capacity() << endl;
+        cout << "Insert PopBack" << endl;
         intv1.insert(n,-1);
+        cout << "Insert from index" << endl;
         intv1.insert(2, 6384,-100);
-        cout << intv1.capacity() << endl;
-        cout << intv1[1] << endl;
-        cout << intv1[2] << endl;
-        cout << intv1[1337] << endl;
-        cout << intv1[2 + 6384 - 1] << endl;
-        cout << intv1[2 + 6384] << endl;
-        cout << intv1[2 + 6384 + 100] << endl;
-        cout << intv1[10000] << endl;
-        cout << intv1[10000 - 1] << endl;
-        cout << intv1[intv1.size() - 2] << endl;
-        cout << intv1[intv1.size() - 1] << endl;
-        cout << intv1.size() << endl;
+        cout << "Capacity: " << intv1.capacity() << endl;
+        cout << "Elements index 1: " << intv1[1] << endl;
+        cout << "Elements index 2: " << intv1[2] << endl;
+        cout << "Elements index 1337: " << intv1[1337] << endl;
+        cout << "Elements index 2 + 6384 - 1 (last inserted): " << intv1[2 + 6384 - 1] << endl;
+        cout << "Elements index 2 + 6384 (next after last inserted): " << intv1[2 + 6384] << endl;
+        cout << "Elements index (100th after last inserted): " << intv1[2 + 6384 + 100] << endl;
+        cout << "Elements index 10000: " << intv1[10000] << endl;
+        cout << "Elements index 9999: " << intv1[10000 - 1] << endl;
+        cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
+        cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
+        cout << "Size: " << intv1.size() << endl;
+        cout << "PopBack" << endl;
         intv1.pop_back();
-        cout << intv1.size() << endl;
-        cout << intv1[intv1.size() - 2] << endl;
-        cout << intv1[intv1.size() - 1] << endl;
-        cout << intv1[intv1.size()] << endl;
+        cout << "Size: " << intv1.size() << endl;
+        cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
+        cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
+        cout << "Elements index size (after last): " << intv1[intv1.size()] << endl;
+
+        cout << "Erase 2 elemets (9996, 9997)" << endl;
         intv1.erase(intv1.size() - 4, 2);
-        cout << intv1[intv1.size() - 4] << endl;
-        cout << intv1[intv1.size() - 3] << endl;
-        cout << intv1[intv1.size() - 2] << endl;
-        cout << intv1[intv1.size() - 1] << endl;
-        cout << intv1[intv1.size()] << endl;
-        //intv1.erase(0, intv1.size());
-        cout << "Resize" << endl;
-        intv1.resize(intv1.size() + 10);
-        cout << intv1[intv1.size() - 11] << endl;
-        cout << intv1[intv1.size() - 10] << endl;
-        cout << intv1[intv1.size() - 4] << endl;
-        cout << intv1[intv1.size() - 3] << endl;
-        cout << intv1[intv1.size() - 2] << endl;
-        cout << intv1[intv1.size() - 1] << endl;
-        cout << intv1.capacity() << endl;
+        cout << "Elements index size - 4: " << intv1[intv1.size() - 4] << endl;
+        cout << "Elements index size - 3: " << intv1[intv1.size() - 3] << endl;
+        cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
+        cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
+        cout << "Elements index size (after last): " << intv1[intv1.size() - 2] << endl;
+
+        cout << "Resize with + 10 elements (elem = 12)" << endl;
+        cout << "Size: " << intv1.size() << endl;
+        intv1.resize(intv1.size() + 10, 12);
+        cout << "Size: " << intv1.size() << endl;
+        cout << "Elements index size - 11 (prev before last inserted): " << intv1[intv1.size() - 11] << endl;
+        cout << "Elements index size - 10 (last inserted): " << intv1[intv1.size() - 10] << endl;
+        cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
+        cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
+        cout << "Capacity: " << intv1.capacity() << endl;
+        cout << "Shrink to Fit" << endl;
         intv1.shrink_to_fit();
-        cout << intv1.capacity() << endl;
-        intv1.clear();
+        cout << "Capacity: " << intv1.capacity() << endl;
+        /*intv1.clear();
+        //intv1.erase(0, intv1.size());
         cout << intv1.size() << endl;
         cout << intv1[16384 - 5] << endl;
-        /*for (int i = 0; i < intv1.size(); ++i) {
-            cout << intv1[i] << endl;
-        }*/
-       /* ///Massive copy
+*/
+        ///Massive copy
         Vector<int> intv2(intv1); //Constr copy
-        *//*for (int i = 0; i < intv2.size(); ++i) {
-            cout << intv2[i] << endl;
-        }*//*
 
+        /*
         ///Pushback check nonIntegral
         Vector<string> st1; //Constr empty
         for (int i = 0; i < n; i++) {
@@ -97,8 +100,8 @@ int main() {
             std::cout << intv3[i] << endl;
         }*/
 
-        ///Check of not integral types
-        /*vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
+        /*///Check of not integral types
+        vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
         vector<string> vec1{"fhffh","hfjhhhh","gdbfd","rtbt","bfbhjhjgfnn"};
         vector<string> vec2{"fdhh","hfh","ghfdghjhbfd","rtnnbt","bfbffnn"};
         Vector<vector<string>> strv{vec0, vec1, vec2}; //init list
