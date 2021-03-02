@@ -25,6 +25,8 @@ public:
     typedef value_type&                           reference;
     typedef VectorIterator<Vector<value_type>>    iterator;
     typedef ConstantIterator<Vector<value_type>>  const_iterator;
+    typedef std::reverse_iterator<iterator>       reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
     Vector() : size_(0), capacity_(2) {
         data_ = new value_type[capacity_];
@@ -268,6 +270,13 @@ public:
     const_iterator cbegin() const noexcept {
         return begin();
     }
+    reverse_iterator rbegin() noexcept {
+        return reverse_iterator(end());
+    }
+    const_reverse_iterator rbegin() const noexcept {
+        return const_reverse_iterator(end());
+    }
+
     iterator end() noexcept {
         return iterator(data_ + size_);
     }
@@ -276,6 +285,12 @@ public:
     }
     const_iterator cend() const noexcept {
         return end();
+    }
+    reverse_iterator rend() noexcept {
+        return reverse_iterator(begin());
+    }
+    const_reverse_iterator rend() const noexcept {
+        return const_reverse_iterator(begin());
     }
 
     size_t capacity() const noexcept {

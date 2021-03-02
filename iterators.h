@@ -1,7 +1,6 @@
 //
 // Created by Admin on 02.03.2021.
 //
-#include <iterator>
 
 #ifndef TEMPLATE_ITERATORS_H
 #define TEMPLATE_ITERATORS_H
@@ -33,6 +32,14 @@ public:
             : m_ptr(other.m_ptr) {}
 
     ConstantIterator& operator = (const ConstantIterator& other) {
+        m_ptr = other.m_ptr;
+        return *this;
+    }
+
+    ConstantIterator(ConstantIterator&& other)
+            : m_ptr(other.m_ptr) {}
+
+    ConstantIterator& operator = (ConstantIterator&& other) {
         m_ptr = other.m_ptr;
         return *this;
     }

@@ -79,12 +79,12 @@ int main() {
             std::cout << intv1[i] << endl;
         }*/
         std::sort(intv1.begin(), intv1.end());
-        for (int i = 0; i < intv1.size(); i++) {
+        /*for (int i = 0; i < intv1.size(); i++) {
             std::cout << intv1[i] << endl;
-        }
-       /* for (Vector<int>::const_iterator it = intv1.cbegin(); it != intv1.cend(); it++) {
-            cout << *it << endl;
         }*/
+        for (auto it = intv1.begin(); it != intv1.end(); it++) {
+            cout << *it << endl;
+        }
         cout << "Size: " << intv1.size() << endl;
         /*
         ///Pushback check nonIntegral
