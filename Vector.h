@@ -136,6 +136,15 @@ public:
         }
         data_[size_++] = std::move(elem);
     };
+
+    template<class... Args>
+    void emplace_back(Args&&... constructor_args) {
+        if (size_ == capacity_) {
+            reserve(capacity_ * 2);
+        }
+        data_[size_++] = value_type(std::forward<Args>(constructor_args)...);
+    }
+
     void pop_back() {
         if (!empty()) {
             if (std::is_destructible<value_type>::value)

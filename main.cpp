@@ -42,6 +42,13 @@ int main() {
         cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
         cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
         cout << "Elements index size (after last): " << intv1[intv1.size()] << endl;
+        cout << "Size: " << intv1.size() << endl;
+        cout << "EmplaceBack" << endl;
+        intv1.emplace_back(-1);
+        cout << "Size: " << intv1.size() << endl;
+        cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
+        cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
+        cout << "Elements index size (after last): " << intv1[intv1.size()] << endl;
 
         cout << "Erase 2 elemets (9996, 9997)" << endl;
         intv1.erase(intv1.size() - 4, 2);
