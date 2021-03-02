@@ -2,6 +2,7 @@
 #include "Vector.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -69,20 +70,35 @@ int main() {
 */
         ///Massive copy
         Vector<int> intv2(intv1); //Constr copy
-
+        int sum = 0;
+        cout << "Size: " << intv1.size() << endl;
+        intv1.reserve(17000);
+        std::fill(intv1.end() - 200, intv1.end(), -200);
+        std::reverse(intv1.begin(), intv1.end());
+        /*for (int i = 0; i < intv1.size(); i++) {
+            std::cout << intv1[i] << endl;
+        }*/
+        std::sort(intv1.begin(), intv1.end());
+        for (int i = 0; i < intv1.size(); i++) {
+            std::cout << intv1[i] << endl;
+        }
+       /* for (Vector<int>::const_iterator it = intv1.cbegin(); it != intv1.cend(); it++) {
+            cout << *it << endl;
+        }*/
+        cout << "Size: " << intv1.size() << endl;
         /*
         ///Pushback check nonIntegral
-        Vector<string> st1; //Constr empty
+        _vector<string> st1; //Constr empty
         for (int i = 0; i < n; i++) {
             st1.push_back(std::to_string(i)); //Move pushback
         }
         ///Massive copy nonIntegral
-        Vector<string> st2(st1); //Constr copy
+        _vector<string> st2(st1); //Constr copy
         cout << st2[289] << endl;
 
         ///Move check
-        Vector<int> intv3 = {1,3,4}; //Constr init list
-        intv3 = Vector<int>(5, 167); //Assign move + n,elem
+        _vector<int> intv3 = {1,3,4}; //Constr init list
+        intv3 = _vector<int>(5, 167); //Assign move + n,elem
         auto intv4(std::move(intv3)); //Constr move
         intv4 = std::move(intv4); //Assign move (self)
         cout << intv4[0] << endl;
@@ -100,12 +116,14 @@ int main() {
             std::cout << intv3[i] << endl;
         }*/
 
-        /*///Check of not integral types
-        vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
+        ///Check of not integral types
+        cout << endl;
+        /*vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
         vector<string> vec1{"fhffh","hfjhhhh","gdbfd","rtbt","bfbhjhjgfnn"};
         vector<string> vec2{"fdhh","hfh","ghfdghjhbfd","rtnnbt","bfbffnn"};
         Vector<vector<string>> strv{vec0, vec1, vec2}; //init list
         Vector<vector<string>> strv1(strv); //
+        strv1.pop_back();
         for (int i = 0; i < strv1.size(); i++) {
             for (int j = 0; j < strv1[i].size(); j++) {
                 std::cout << strv1[i][j] << endl;

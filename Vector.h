@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <type_traits>
 #include <iterator>
+#include "iterators.h"
+#include <cassert>
 
 #ifndef TEMPLATE_VECTOR_H
 #define TEMPLATE_VECTOR_H
@@ -12,43 +14,48 @@
 //TODO: make instance for bool
 template<class ContainerType>
 class Vector {
+    friend ConstantIterator<Vector>;
+    friend VectorIterator<Vector>;
 
 public:
-
-    using ValueType = ContainerType;
-    using PointerType = ContainerType*;
-    using ReferenceType = ContainerType&;
+    typedef std::random_access_iterator_tag       iterator_category;
+    typedef ContainerType                         value_type;
+    typedef ptrdiff_t                             difference_type;
+    typedef value_type*                           pointer;
+    typedef value_type&                           reference;
+    typedef VectorIterator<Vector<value_type>>    iterator;
+    typedef ConstantIterator<Vector<value_type>>  const_iterator;
 
     Vector() : size_(0), capacity_(2) {
-        data_ = new ContainerType[capacity_];
+        data_ = new value_type[capacity_];
         std::cout << "Constructor: empty" << std::endl;
     }
     explicit Vector(size_t size) : size_(size), capacity_(size) {
-        data_ = new ContainerType[capacity_]();
+        data_ = new value_type[capacity_]();
         std::cout << "Constructor: n" << std::endl;
     }
-    Vector(size_t size, const ContainerType& elem) : size_(size), capacity_(size) {
-        data_ = new ContainerType[capacity_];
+    Vector(size_t size, const value_type& elem) : size_(size), capacity_(size) {
+        data_ = new value_type[capacity_];
         for (int i = 0; i < size_; i++) {
             data_[i] = elem;
         }
         std::cout << "Constructor: n, elem" << std::endl;
     }
 
-    Vector(std::initializer_list<ContainerType> il) : size_(il.size()), capacity_(il.size()) {
-        data_ = new ContainerType[capacity_];
+    Vector(std::initializer_list<value_type> il) : size_(il.size()), capacity_(il.size()) {
+        data_ = new value_type[capacity_];
         int i = 0;
         for (auto item : il) {
             data_[i++] = item;
         }
         std::cout << "Constructor: initializer list" << std::endl;
     };
-    Vector& operator= (std::initializer_list<ContainerType> il){
+    Vector& operator= (std::initializer_list<value_type> il){
         size_ = il.size();
         capacity_ = il.size();
 
         delete[] data_;
-        data_ = new ContainerType[capacity_];
+        data_ = new value_type[capacity_];
 
         int i = 0;
         for (auto item : il) {
@@ -58,11 +65,11 @@ public:
         return *this;
     };
 
-    Vector(const Vector<ContainerType>& vector) : size_(vector.size()), capacity_(vector.size()) {
-        data_ = new ContainerType[capacity_];
+    Vector(const Vector<value_type>& vector) : size_(vector.size()), capacity_(vector.size()) {
+        data_ = new value_type[capacity_];
 
-        if (std::is_integral<ContainerType>::value) {
-            memcpy(data_, vector.data_, size_ * sizeof(ContainerType));
+        if (std::is_integral<value_type>::value) {
+            memcpy(data_, vector.data_, size_ * sizeof(value_type));
             std::cout << "Constructor: = copy integral" << std::endl;
         }
         else {
@@ -70,16 +77,16 @@ public:
             std::cout << "Constructor: = copy not integral" << std::endl;
         }
     }
-    Vector<ContainerType>& operator = (const Vector<ContainerType>& vector) {
+    Vector<value_type>& operator = (const Vector<value_type>& vector) {
         if (this != &vector) {
             size_ = vector.size();
             capacity_ = vector.size();
 
             delete[] data_;
-            data_ = new ContainerType[capacity_];
+            data_ = new value_type[capacity_];
 
-            if (std::is_integral<ContainerType>::value) {
-                memcpy(data_, vector.data_, size_ * sizeof(ContainerType));
+            if (std::is_integral<value_type>::value) {
+                memcpy(data_, vector.data_, size_ * sizeof(value_type));
                 std::cout << "Assign: = copy integral" << std::endl;
             } else {
                 elementsCopy(vector.data_, data_, vector.size());
@@ -90,14 +97,14 @@ public:
         return *this;
     }
 
-    Vector(Vector<ContainerType>&& vector) noexcept : size_(vector.size()), capacity_(vector.size()) {
+    Vector(Vector<value_type>&& vector) noexcept : size_(vector.size()), capacity_(vector.size()) {
         data_ = vector.data_;
         vector.data_ = nullptr;
         vector.size_ = 0;
         vector.capacity_ = 0;
         std::cout << "Constructor: move" << std::endl;
     }
-    Vector<ContainerType>& operator = (Vector<ContainerType>&& vector) noexcept {
+    Vector<value_type>& operator = (Vector<value_type>&& vector) noexcept {
         if (this != &vector) {
             size_ = vector.size();
             capacity_ = vector.size();
@@ -113,32 +120,34 @@ public:
         return *this;
     }
 
-    void push_back(const ContainerType& elem) {
+    void push_back(const value_type& elem) {
         //std::cout << "Pushback copy" << std::endl;
         if (size_ == capacity_) {
             reserve(capacity_ * 2);
         }
         data_[size_++] = elem;
     }
-    void push_back(ContainerType&& elem) {
+    void push_back(value_type&& elem) {
         std::cout << "Pushback move" << std::endl;
         if (size_ == capacity_) {
             reserve(capacity_ * 2);
         }
         data_[size_++] = std::move(elem);
     };
-    void pop_back() noexcept {
+    void pop_back() {
         if (!empty()) {
-            if (std::is_default_constructible<ContainerType>::value)
-                data_[size_ - 1] = ContainerType();
+            if (std::is_destructible<value_type>::value)
+                data_[size_ - 1].~value_type();
+            else if (std::is_default_constructible<value_type>::value)
+                data_[size_ - 1] = value_type();
             size_--;
         }
     };
 
-    void insert(size_t index, const ContainerType& elem) {
+    void insert(size_t index, const value_type& elem) {
         insert(index, 1, elem);
     };
-    void insert(size_t index, size_t count, const ContainerType& elem) {
+    void insert(size_t index, size_t count, const value_type& elem) {
         std::cout << "Insert copy" << std::endl;
         if (index == size_) {
             for (int i = 0; i < count; i++)
@@ -149,7 +158,7 @@ public:
                 std::cout << "Realloc" << std::endl;
                 ///Maybe make this allocate more than count if it's greater than doubled capacity?
                 capacity_ += capacity_ > count ? capacity_ : count; //Multiply capacity_ by 2 or add count for storing new elements
-                PointerType oldMemory = reallocate(capacity_);
+                pointer oldMemory = reallocate(capacity_);
                 elementsMove(oldMemory, data_, /*count:*/ index);
                 elementsMove(oldMemory + index, data_ + index + count, size_ - index);
                 delete[] oldMemory;
@@ -165,7 +174,7 @@ public:
         }
         else throw std::runtime_error("Out of bounds exception!");
     }
-    void insert(size_t index, ContainerType&& elem) {
+    void insert(size_t index, value_type&& elem) {
         std::cout << "Insert move" << std::endl;
         if (index == size_) {
             push_back(std::move(elem));
@@ -173,7 +182,7 @@ public:
         else if (index < size_) {
             if (size_ + 1 > capacity_) {
                 std::cout << "Realloc move" << std::endl;
-                PointerType oldMemory = reallocate();
+                pointer oldMemory = reallocate();
                 elementsMove(oldMemory, data_, /*count:*/ index);
                 elementsMove(oldMemory + index, data_ + index + 1, size_ - index);
                 delete[] oldMemory;
@@ -187,7 +196,7 @@ public:
         }
         else throw std::runtime_error("Out of bounds exception!");
     }
-    void insert(size_t index, std::initializer_list<ContainerType> il) {
+    void insert(size_t index, std::initializer_list<value_type> il) {
         std::cout << "Insert init list" << std::endl;
         if (index == size_) {
             for (auto iter = il.begin(); iter != il.end(); iter++) {
@@ -198,7 +207,7 @@ public:
             if (size_ + il.size() > capacity_) {
                 std::cout << "Realloc" << std::endl;
                 capacity_ += capacity_ > il.size() ? capacity_ : il.size(); //Multiply capacity_ by 2 or add il.size for storing new elements
-                PointerType oldMemory = reallocate(capacity_);
+                pointer oldMemory = reallocate(capacity_);
                 elementsMove(oldMemory, data_, /*count:*/ index);
                 elementsMove(oldMemory + index, data_ + index + il.size(), size_ - index);
                 delete[] oldMemory;
@@ -237,21 +246,37 @@ public:
         }
     };
 
-    ContainerType& front() {
+    value_type& front() {
         return operator[](0);
     };
-    const ContainerType& front() const {
+    const value_type& front() const {
         return operator[](0);
     };
-    ContainerType& back() {
+    value_type& back() {
         return operator[](size_ - 1);
     };
-    const ContainerType& back() const {
+    const value_type& back() const {
         return operator[](size_ - 1);
     };
 
-    PointerType begin();
-    PointerType end();
+    iterator begin() noexcept {
+        return iterator(data_);
+    }
+    const_iterator begin() const noexcept {
+        return const_iterator(data_);
+    }
+    const_iterator cbegin() const noexcept {
+        return begin();
+    }
+    iterator end() noexcept {
+        return iterator(data_ + size_);
+    }
+    const_iterator end() const noexcept {
+        return const_iterator(data_ + size_);
+    }
+    const_iterator cend() const noexcept {
+        return end();
+    }
 
     size_t capacity() const noexcept {
         return capacity_;
@@ -270,7 +295,7 @@ public:
             delete[] oldMemory;
         }
     };
-    void resize(size_t size, const ContainerType& elem = ContainerType() ) {
+    void resize(size_t size, const value_type& elem = value_type() ) {
         while (size < size_) {
             pop_back(); //decrements size_
         }
@@ -288,19 +313,19 @@ public:
         reserve(size_);
     }
 
-    ContainerType& operator[] (size_t index) {
+    value_type& operator[] (size_t index) {
         return data_[index];
     }
-    const ContainerType& operator[] (size_t index) const {
+    const value_type& operator[] (size_t index) const {
         return data_[index];
     }
-    ContainerType& at(size_t index) {
+    value_type& at(size_t index) {
         if (index < size_) {
             return data_[index];
         }
         else throw std::runtime_error("Out of bounds exception!");
     };
-    const ContainerType& at(size_t index) const {
+    const value_type& at(size_t index) const {
         if (index < size_) {
             return data_[index];
         }
@@ -312,37 +337,37 @@ public:
     };
 
 private:
-    ContainerType* data_;
+    value_type* data_;
     size_t size_;
     size_t capacity_;
 
-    [[nodiscard]] PointerType reallocate() {
+    [[nodiscard]] pointer reallocate() {
         auto tempPtr = data_;
-        data_ = new ContainerType[capacity_ *= 2];
+        data_ = new value_type[capacity_ *= 2];
 
         return tempPtr;
     }
-    [[nodiscard]] PointerType reallocate(size_t amount) {
+    [[nodiscard]] pointer reallocate(size_t amount) {
         capacity_ = amount;
         auto tempPtr = data_;
-        data_ = new ContainerType[amount];
+        data_ = new value_type[amount];
 
         return tempPtr;
     }
 
-    void elementsMove(PointerType src, PointerType dst, size_t count) {
-        for (PointerType ptr = dst; ptr < dst + count; ptr++) {
+    void elementsMove(pointer src, pointer dst, size_t count) {
+        for (pointer ptr = dst; ptr < dst + count; ptr++) {
             *ptr = std::move( *(src++) );
         }
     }
 
-    void elementsCopy(PointerType src, PointerType dst, size_t count) {
-        for (PointerType ptr = dst; ptr < dst + count; ptr++) {
+    void elementsCopy(pointer src, pointer dst, size_t count) {
+        for (pointer ptr = dst; ptr < dst + count; ptr++) {
             *ptr = *(src++);
         }
     }
 
-    void elementsShift(PointerType begin, size_t chunkSize, long long shift) {
+    void elementsShift(pointer begin, size_t chunkSize, long long shift) {
         if (shift > 0) {
             elementsShiftRight(begin, chunkSize, shift);
         }
@@ -352,16 +377,16 @@ private:
     }
 
     //make it more readable
-    void elementsShiftRight(PointerType begin, size_t chunkSize, size_t shift) {
-        PointerType dst = begin + chunkSize + shift - 1;
-        for (PointerType src = begin + chunkSize - 1; src >= begin; src--) {
+    void elementsShiftRight(pointer begin, size_t chunkSize, size_t shift) {
+        pointer dst = begin + chunkSize + shift - 1;
+        for (pointer src = begin + chunkSize - 1; src >= begin; src--) {
             *(dst--) = std::move( *src );
         }
     }
 
-    void elementsShiftLeft(PointerType begin, size_t chunkSize, size_t shift) {
-        PointerType dst = begin - shift;
-        for (PointerType src = begin; src < begin + chunkSize; src++) {
+    void elementsShiftLeft(pointer begin, size_t chunkSize, size_t shift) {
+        pointer dst = begin - shift;
+        for (pointer src = begin; src < begin + chunkSize; src++) {
             *(dst++) = std::move( *src );
         }
     }
