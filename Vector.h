@@ -131,7 +131,7 @@ public:
         if (size_ == capacity_) {
             reserve(capacity_ * 2);
         }
-        data_[size_++] = value_type(std::forward<Args>(constructor_args)...);
+        new (data_ + size_++) value_type(std::forward<Args>(constructor_args)...);
     }
 
     void pop_back() {
