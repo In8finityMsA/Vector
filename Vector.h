@@ -70,14 +70,8 @@ public:
     Vector(const Vector<value_type>& vector) : size_(vector.size()), capacity_(vector.size()) {
         data_ = new value_type[capacity_];
 
-        if (std::is_integral<value_type>::value) {
-            memcpy(data_, vector.data_, size_ * sizeof(value_type));
-            std::cout << "Constructor: = copy integral" << std::endl;
-        }
-        else {
-            elementsCopy(vector.data_, data_, vector.size());
-            std::cout << "Constructor: = copy not integral" << std::endl;
-        }
+        elementsCopy(vector.data_, data_, vector.size());
+        std::cout << "Constructor: = copy" << std::endl;
     }
     Vector<value_type>& operator = (const Vector<value_type>& vector) {
         if (this != &vector) {
@@ -87,13 +81,8 @@ public:
             delete[] data_;
             data_ = new value_type[capacity_];
 
-            if (std::is_integral<value_type>::value) {
-                memcpy(data_, vector.data_, size_ * sizeof(value_type));
-                std::cout << "Assign: = copy integral" << std::endl;
-            } else {
-                elementsCopy(vector.data_, data_, vector.size());
-                std::cout << "Assign: = copy not integral" << std::endl;
-            }
+            elementsCopy(vector.data_, data_, vector.size());
+            std::cout << "Assign: = copy" << std::endl;
         }
 
         return *this;
@@ -386,8 +375,12 @@ private:
     }
 
     void elementsCopy(pointer src, pointer dst, size_t count) {
-        for (pointer ptr = dst; ptr < dst + count; ptr++) {
-            *ptr = *(src++);
+        if (std::is_integral<value_type>::value) {
+            memcpy(dst, src, count * sizeof(value_type));
+        } else {
+            for (pointer ptr = dst; ptr < dst + count; ptr++) {
+                *ptr = *(src++);
+            }
         }
     }
 
