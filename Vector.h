@@ -146,10 +146,10 @@ public:
         }
     };
 
-    void insert(size_t index, const_reference elem) {
+    iterator insert(size_t index, const_reference elem) {
         insert(index, 1, elem);
     };
-    void insert(size_t index, size_t count, const_reference elem) {
+    iterator insert(size_t index, size_t count, const_reference elem) {
         std::cout << "Insert copy" << std::endl;
         if (index == size_) {
             for (int i = 0; i < count; i++)
@@ -175,8 +175,10 @@ public:
             size_ += count;
         }
         else throw std::runtime_error("Out of bounds exception!");
+
+        return iterator (data_ + index);
     }
-    void insert(size_t index, value_type&& elem) {
+    iterator insert(size_t index, value_type&& elem) {
         std::cout << "Insert move" << std::endl;
         if (index == size_) {
             push_back(std::move(elem));
@@ -197,8 +199,10 @@ public:
             size_++;
         }
         else throw std::runtime_error("Out of bounds exception!");
+
+        return iterator (data_ + index);
     }
-    void insert(size_t index, std::initializer_list<value_type> il) {
+    iterator insert(size_t index, std::initializer_list<value_type> il) {
         std::cout << "Insert init list" << std::endl;
         if (index == size_) {
             for (auto iter = il.begin(); iter != il.end(); iter++) {
@@ -225,12 +229,14 @@ public:
             size_ += il.size();
         }
         else throw std::runtime_error("Out of bounds exception!");
+
+        return iterator (data_ + index);
     }
 
-    void erase(size_t index) {
+    iterator erase(size_t index) {
         erase(index, 1);
     }
-    void erase(size_t index, size_t count) {
+    iterator erase(size_t index, size_t count) {
         if (index == size_ - count) {
             for (int i = 0; i < count; i++) {
                 pop_back();
@@ -241,6 +247,8 @@ public:
             size_ -= count;
         }
         else throw std::runtime_error("Out of bounds exception!");
+
+        return iterator (data_ + index);
     }
     void clear() {
         while (size_) {

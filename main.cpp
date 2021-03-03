@@ -21,12 +21,13 @@ int main() {
         cout << "Size: " << intv1.size() << endl;
         cout << "Capacity: " << intv1.capacity() << endl;
         cout << "Insert PopBack" << endl;
-        intv1.insert(n,-1);
+        auto it1 = intv1.insert(n,-1);
+        cout << "Elements iterator (first inserted): " << *it1 << endl;
         cout << "Insert from index" << endl;
-        intv1.insert(2, 6384,-100);
+        auto it2 =intv1.insert(2, 6384,-100);
         cout << "Capacity: " << intv1.capacity() << endl;
-        cout << "Elements index 1: " << intv1[1] << endl;
-        cout << "Elements index 2: " << intv1[2] << endl;
+        cout << "Elements iterator (before first inserted): " << *(it2 - 1) << endl;
+        cout << "Elements iterator (first inserted): " << *it2 << endl;
         cout << "Elements index 1337: " << intv1[1337] << endl;
         cout << "Elements index 2 + 6384 - 1 (last inserted): " << intv1[2 + 6384 - 1] << endl;
         cout << "Elements index 2 + 6384 (next after last inserted): " << intv1[2 + 6384] << endl;
