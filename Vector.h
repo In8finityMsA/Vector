@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <iterator>
 #include "iterators.h"
+#include <chrono>
 #include <cassert>
 
 #ifndef TEMPLATE_VECTOR_H
@@ -378,9 +379,14 @@ private:
     }
 
     void elementsMove(pointer dst, pointer src, size_t count) {
-        for (pointer ptr = dst; ptr < dst + count; ptr++) {
-            *ptr = std::move( *(src++) );
+        if (std::is_integral<value_type>::value) {
+            memcpy(dst, src, count * sizeof(value_type));
+        } else {
+            for (pointer ptr = dst; ptr < dst + count; ptr++) {
+                *ptr = std::move( *(src++) );
+            }
         }
+
     }
 
     void elementsCopy(pointer dst, pointer src, size_t count) {
