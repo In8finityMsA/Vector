@@ -93,7 +93,11 @@ int main() {
         /*for (auto it = intv1.begin(); it != intv1.end(); it++) {
             cout << *it << endl;
         }*/
-        cout << "Size: " << intv1.size() << endl;
+        intv2.assign(intv1.begin() + 6384 + 200, intv1.end());
+        for (auto it = intv2.begin(); it != intv2.end(); it++) {
+            cout << *it << endl;
+        }
+        cout << "Size 2: " << intv2.size() << endl;
         /*
         ///Pushback check nonIntegral
         _vector<string> st1; //Constr empty
@@ -125,24 +129,24 @@ int main() {
         }*/
 
         ///Check of not integral types
-        cout << endl;
-        /*vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
+        /*cout << endl;
+        *//*vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
         vector<string> vec1{"fhffh","hfjhhhh","gdbfd","rtbt","bfbhjhjgfnn"};
-        vector<string> vec2{"fdhh","hfh","ghfdghjhbfd","rtnnbt","bfbffnn"};*/
+        vector<string> vec2{"fdhh","hfh","ghfdghjhbfd","rtnnbt","bfbffnn"};*//*
         //Vector<vector<string>> strv{vec0, vec1, vec2}; //init list
         Vector<string> strv{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
         Vector<string> strv1(strv); //
         strv1.erase(1);
-        /*for (int i = 0; i < strv1.size(); i++) {
+        *//*for (int i = 0; i < strv1.size(); i++) {
             for (int j = 0; j < strv1[i].size(); j++) {
                 std::cout << strv1[i][j] << endl;
             }
             cout << endl;
-        }*/
+        }*//*
         strv[0] = "hello";
         for (int i = 0; i < strv1.size(); i++) {
             cout << strv1[i] << endl;
-        }
+        }*/
 //        cout << strv1[5] << endl;
     }
     catch (std::exception& e) {

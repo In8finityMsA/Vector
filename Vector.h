@@ -113,10 +113,25 @@ public:
         return *this;
     }
 
-    /*template <class InputIterator>
-    void assign (InputIterator first, InputIterator last);
-    void assign (size_t count, const_reference elem);
-    void assign (std::initializer_list<value_type> il);*/
+    template <class InputForwardIterator>
+    void assign (InputForwardIterator first, InputForwardIterator last) {
+        auto newSize = std::distance(first, last);
+        assignSizeCheck(newSize);
+
+        for (int i = 0; i < size_; i++) {
+            data_[i] = *(first++);
+        }
+    }
+    void assign (size_t count, const_reference elem) {
+        assignSizeCheck(count);
+
+        for (int i = 0; i < size_; i++) {
+            data_[i] = elem;
+        }
+    }
+    void assign (std::initializer_list<value_type> il) {
+        assign(il.begin(), il.end());
+    }
 
     void push_back(const_reference elem) {
         //std::cout << "Pushback copy" << std::endl;
@@ -368,6 +383,20 @@ private:
         data_ = new value_type[amount];
 
         return tempPtr;
+    }
+
+    void assignSizeCheck(size_t newSize) {
+        if (capacity_ < newSize) {
+            auto oldMemory = reallocate(newSize); //capacity_ is updated in reallocate
+            delete[] oldMemory;
+        }
+        else if (newSize < size_) {
+            for (int i = newSize; i < size_; i++) {
+                data_[i].~value_type();
+            }
+        }
+
+        size_ = newSize;
     }
 
     void preInsertionMoving(size_t index, size_t count) {
