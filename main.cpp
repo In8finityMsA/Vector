@@ -51,13 +51,13 @@ int main() {
         cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
         cout << "Elements index size (after last): " << intv1[intv1.size()] << endl;
 
-        cout << "Erase 2 elemets (9996, 9997)" << endl;
-        intv1.erase(intv1.size() - 4, 2);
-        cout << "Elements index size - 4: " << intv1[intv1.size() - 4] << endl;
-        cout << "Elements index size - 3: " << intv1[intv1.size() - 3] << endl;
-        cout << "Elements index size - 2 (prev last): " << intv1[intv1.size() - 2] << endl;
-        cout << "Elements index size - 1 (last): " << intv1[intv1.size() - 1] << endl;
-        cout << "Elements index size (after last): " << intv1[intv1.size() - 2] << endl;
+        cout << "Erase 2 elemets (9997, 9998)" << endl;
+        auto it3 = intv1.erase(intv1.size() - 4, 2);
+        cout << "Elements erase iterator - 2: " << *(it3 - 2) << endl;
+        cout << "Elements erase iterator - 1 (first before erased): " << *(it3 - 1) << endl;
+        cout << "Elements erase iterator (first after erased, prev last): " << *it3 << endl;
+        cout << "Elements erase iterator + 1 (second after erased, last): " << *(it3 + 1) << endl;
+        cout << "Elements index size (after last): " << intv1[intv1.size()] << endl;
 
         cout << "Resize with + 10 elements (elem = 12)" << endl;
         cout << "Size: " << intv1.size() << endl;
@@ -90,9 +90,9 @@ int main() {
         /*for (int i = 0; i < intv1.size(); i++) {
             std::cout << intv1[i] << endl;
         }*/
-        for (auto it = intv1.begin(); it != intv1.end(); it++) {
+        /*for (auto it = intv1.begin(); it != intv1.end(); it++) {
             cout << *it << endl;
-        }
+        }*/
         cout << "Size: " << intv1.size() << endl;
         /*
         ///Pushback check nonIntegral
@@ -128,19 +128,22 @@ int main() {
         cout << endl;
         /*vector<string> vec0{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
         vector<string> vec1{"fhffh","hfjhhhh","gdbfd","rtbt","bfbhjhjgfnn"};
-        vector<string> vec2{"fdhh","hfh","ghfdghjhbfd","rtnnbt","bfbffnn"};
-        Vector<vector<string>> strv{vec0, vec1, vec2}; //init list
-        Vector<vector<string>> strv1(strv); //
-        strv1.pop_back();
-        for (int i = 0; i < strv1.size(); i++) {
+        vector<string> vec2{"fdhh","hfh","ghfdghjhbfd","rtnnbt","bfbffnn"};*/
+        //Vector<vector<string>> strv{vec0, vec1, vec2}; //init list
+        Vector<string> strv{"fhh","hfhhh","ghfdbfd","rtnnbt","bfbfbngfnn"};
+        Vector<string> strv1(strv); //
+        strv1.erase(1);
+        /*for (int i = 0; i < strv1.size(); i++) {
             for (int j = 0; j < strv1[i].size(); j++) {
                 std::cout << strv1[i][j] << endl;
             }
             cout << endl;
+        }*/
+        strv[0] = "hello";
+        for (int i = 0; i < strv1.size(); i++) {
+            cout << strv1[i] << endl;
         }
-        strv[0][0] = "hello";
-        cout << strv[0][0] << endl;
-        cout << vec0[0] << endl;*/
+//        cout << strv1[5] << endl;
     }
     catch (std::exception& e) {
         std::cout << e.what() << std::endl;

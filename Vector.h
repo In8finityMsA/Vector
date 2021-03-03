@@ -113,6 +113,11 @@ public:
         return *this;
     }
 
+    /*template <class InputIterator>
+    void assign (InputIterator first, InputIterator last);
+    void assign (size_t count, const_reference elem);
+    void assign (std::initializer_list<value_type> il);*/
+
     void push_back(const_reference elem) {
         //std::cout << "Pushback copy" << std::endl;
         if (size_ == capacity_) {
@@ -140,34 +145,25 @@ public:
         if (!empty()) {
             if (std::is_destructible<value_type>::value)
                 data_[size_ - 1].~value_type();
-            else if (std::is_default_constructible<value_type>::value)
-                data_[size_ - 1] = value_type();
             size_--;
         }
     };
 
     iterator insert(size_t index, const_reference elem) {
-        insert(index, 1, elem);
+        return insert(index, 1, elem);
     };
     iterator insert(size_t index, size_t count, const_reference elem) {
         std::cout << "Insert copy" << std::endl;
         if (index == size_) {
+            if (size_ + count > capacity_) {
+                capacity_ *= 1 + (count + capacity_ - 1) / capacity_; //Fancy way of taking ceil of division
+                reserve(capacity_);
+            }
             for (int i = 0; i < count; i++)
-                push_back(elem);
+                data_[size_++] = elem;
         }
         else if (index < size_) {
-            if (size_ + count > capacity_) {
-                std::cout << "Realloc" << std::endl;
-                ///Maybe make this allocate more than count if it's greater than doubled capacity?
-                capacity_ += capacity_ > count ? capacity_ : count; //Multiply capacity_ by 2 or add count for storing new elements
-                pointer oldMemory = reallocate(capacity_);
-                elementsMove(data_, oldMemory, /*count:*/ index);
-                elementsMove(data_ + index + count, oldMemory + index,size_ - index);
-                delete[] oldMemory;
-            }
-            else {
-                elementsShiftRight(data_ + index, size_ - index, /*shift:*/ count);
-            }
+            preInsertionMoving(index, count);
 
             for (int i = index; i < index + count; i++) {
                 data_[i] = elem;
@@ -176,7 +172,7 @@ public:
         }
         else throw std::runtime_error("Out of bounds exception!");
 
-        return iterator (data_ + index);
+        return iterator(data_ + index);
     }
     iterator insert(size_t index, value_type&& elem) {
         std::cout << "Insert move" << std::endl;
@@ -184,43 +180,27 @@ public:
             push_back(std::move(elem));
         }
         else if (index < size_) {
-            if (size_ + 1 > capacity_) {
-                std::cout << "Realloc move" << std::endl;
-                pointer oldMemory = reallocate();
-                elementsMove(data_, oldMemory, /*count:*/ index);
-                elementsMove(data_ + index + 1, oldMemory + index, size_ - index);
-                delete[] oldMemory;
-            }
-            else {
-                elementsShiftRight(data_ + index, size_ - index, /*shift:*/ 1);
-            }
+            preInsertionMoving(index, 1);
 
             data_[index] = std::move(elem);
             size_++;
         }
         else throw std::runtime_error("Out of bounds exception!");
 
-        return iterator (data_ + index);
+        return iterator(data_ + index);
     }
     iterator insert(size_t index, std::initializer_list<value_type> il) {
         std::cout << "Insert init list" << std::endl;
         if (index == size_) {
-            for (auto iter = il.begin(); iter != il.end(); iter++) {
-                push_back(*iter);
+            if (size_ + il.size() > capacity_) {
+                capacity_ *= 1 + (il.size() + capacity_ - 1) / capacity_; //Fancy way of taking ceil of division
+                reserve(capacity_);
             }
+            for (auto iter = il.begin(); iter != il.end(); iter++)
+                data_[size_++] = *iter;
         }
         else if (index < size_) {
-            if (size_ + il.size() > capacity_) {
-                std::cout << "Realloc" << std::endl;
-                capacity_ += capacity_ > il.size() ? capacity_ : il.size(); //Multiply capacity_ by 2 or add il.size for storing new elements
-                pointer oldMemory = reallocate(capacity_);
-                elementsMove(data_, oldMemory, /*count:*/ index);
-                elementsMove(data_ + index + il.size(), oldMemory + index, size_ - index);
-                delete[] oldMemory;
-            }
-            else {
-                elementsShiftRight(data_ + index, size_ - index, /*shift:*/ il.size());
-            }
+            preInsertionMoving(index, il.size());
 
             auto iter = il.begin();
             for (int i = index; i < index + il.size(); i++) {
@@ -230,11 +210,11 @@ public:
         }
         else throw std::runtime_error("Out of bounds exception!");
 
-        return iterator (data_ + index);
+        return iterator(data_ + index);
     }
 
     iterator erase(size_t index) {
-        erase(index, 1);
+        return erase(index, 1);
     }
     iterator erase(size_t index, size_t count) {
         if (index == size_ - count) {
@@ -244,11 +224,13 @@ public:
         }
         else if (index < size_ - count) {
             elementsShiftLeft(data_ + index + count, size_ - index - count, /*shift:*/ count);
+            for (int i = size_ - count; i < size_; i++)
+                data_[i].~value_type();
             size_ -= count;
         }
         else throw std::runtime_error("Out of bounds exception!");
 
-        return iterator (data_ + index);
+        return iterator(data_ + index); //Can be end() iterator
     }
     void clear() {
         while (size_) {
@@ -367,6 +349,7 @@ private:
     size_t capacity_;
 
     /**
+     * You must copy old contents and delete old memory by yourself!
      * @return pointer to old memory
      */
     [[nodiscard]] pointer reallocate() {
@@ -376,6 +359,7 @@ private:
         return tempPtr;
     }
     /**
+     * You must copy old contents and delete old memory by yourself!
      * @return pointer to old memory
      */
     [[nodiscard]] pointer reallocate(size_t amount) {
@@ -384,6 +368,21 @@ private:
         data_ = new value_type[amount];
 
         return tempPtr;
+    }
+
+    void preInsertionMoving(size_t index, size_t count) {
+        if (size_ + count > capacity_) {
+            std::cout << "Realloc" << std::endl;
+            capacity_ *= 1 + (count + capacity_ - 1) / capacity_; //Fancy way of taking ceil of division //allocates in multiples of capacity if count is greater than doubled capacity.
+            //capacity_ += capacity_ > count ? capacity_ : count; //Multiply capacity_ by 2 or add count for storing new elements
+            pointer oldMemory = reallocate(capacity_);
+            elementsMove(data_, oldMemory, /*count:*/ index);
+            elementsMove(data_ + index + count, oldMemory + index,size_ - index);
+            delete[] oldMemory;
+        }
+        else {
+            elementsShiftRight(data_ + index, size_ - index, /*shift:*/ count);
+        }
     }
 
     void elementsMove(pointer dst, pointer src, size_t count) {
