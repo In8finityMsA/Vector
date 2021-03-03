@@ -94,6 +94,7 @@ int main() {
             cout << *it << endl;
         }*/
         intv2.assign(intv1.begin() + 6384 + 200, intv1.end());
+        //intv2.assign({1,1,2,3,5,8,13,21});
         for (auto it = intv2.begin(); it != intv2.end(); it++) {
             cout << *it << endl;
         }

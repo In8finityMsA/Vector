@@ -132,6 +132,22 @@ public:
     void assign (std::initializer_list<value_type> il) {
         assign(il.begin(), il.end());
     }
+    void swap(Vector<value_type>& other) {
+        auto tmpData = other.data_;
+        other.data_ = data_;
+        data_ = tmpData;
+
+        auto tmpSize = other.size_;
+        other.size_ = size_;
+        size_ = tmpSize;
+
+        auto tmpCapacity = other.capacity_;
+        other.capacity_ = capacity_;
+        capacity_ = tmpCapacity;
+    }
+    friend void swap(Vector<value_type>& lhs, Vector<value_type>& rhs) {
+        lhs.swap(rhs);
+    }
 
     void push_back(const_reference elem) {
         //std::cout << "Pushback copy" << std::endl;
